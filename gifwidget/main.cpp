@@ -1,6 +1,6 @@
 ﻿#pragma execution_character_set("utf-8")
 
-#include "gifwidget.h"
+#include "frmgifwidget.h"
 #include <QApplication>
 #include <QTextCodec>
 #include <QIcon>
@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     a.setFont(QFont("Microsoft Yahei", 9));
     a.setWindowIcon(QIcon(":/image/gifwidget.ico"));
 
-#if (QT_VERSION <= QT_VERSION_CHECK(5,0,0))
+#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
 #if _MSC_VER
     QTextCodec *codec = QTextCodec::codecForName("gbk");
 #else
@@ -25,7 +25,9 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(codec);
 #endif
 
-    GifWidget::Instance()->show();
+    frmGifWidget w;
+    w.setWindowTitle("GIF录屏");
+    w.show();
 
     return a.exec();
 }

@@ -1,12 +1,12 @@
 ﻿#include "frmtcpclient.h"
 #include "ui_frmtcpclient.h"
-#include "quiwidget.h"
+#include "quihelper.h"
 
 frmTcpClient::frmTcpClient(QWidget *parent) : QWidget(parent), ui(new Ui::frmTcpClient)
 {
     ui->setupUi(this);
     this->initForm();
-    this->initConfig();    
+    this->initConfig();
 }
 
 frmTcpClient::~frmTcpClient()
@@ -17,43 +17,48 @@ frmTcpClient::~frmTcpClient()
 void frmTcpClient::initForm()
 {
     isOk = false;
-    tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(disconnected()));
-    connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    socket = new QTcpSocket(this);
+    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(disconnected()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(readData()));
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(on_btnSend_clicked()));
 
-    ui->cboxInterval->addItems(App::Intervals);
-    ui->cboxData->addItems(App::Datas);
+    ui->cboxInterval->addItems(AppConfig::Intervals);
+    ui->cboxData->addItems(AppConfig::Datas);
+
+#ifndef emsdk
+    QString ip = QUIHelper::getNetIP(QUIHelper::getHtml("http://whois.pconline.com.cn/"));
+    append(1, QString("外网IP -> %1").arg(ip));
+#endif
 }
 
 void frmTcpClient::initConfig()
 {
-    ui->ckHexSend->setChecked(App::HexSendTcpClient);
+    ui->ckHexSend->setChecked(AppConfig::HexSendTcpClient);
     connect(ui->ckHexSend, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckHexReceive->setChecked(App::HexReceiveTcpClient);
+    ui->ckHexReceive->setChecked(AppConfig::HexReceiveTcpClient);
     connect(ui->ckHexReceive, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckAscii->setChecked(App::AsciiTcpClient);
+    ui->ckAscii->setChecked(AppConfig::AsciiTcpClient);
     connect(ui->ckAscii, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckDebug->setChecked(App::DebugTcpClient);
+    ui->ckDebug->setChecked(AppConfig::DebugTcpClient);
     connect(ui->ckDebug, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckAutoSend->setChecked(App::AutoSendTcpClient);
+    ui->ckAutoSend->setChecked(AppConfig::AutoSendTcpClient);
     connect(ui->ckAutoSend, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->cboxInterval->setCurrentIndex(ui->cboxInterval->findText(QString::number(App::IntervalTcpClient)));
+    ui->cboxInterval->setCurrentIndex(ui->cboxInterval->findText(QString::number(AppConfig::IntervalTcpClient)));
     connect(ui->cboxInterval, SIGNAL(currentIndexChanged(int)), this, SLOT(saveConfig()));
 
-    ui->txtServerIP->setText(App::TcpServerIP);
+    ui->txtServerIP->setText(AppConfig::TcpServerIP);
     connect(ui->txtServerIP, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 
-    ui->txtServerPort->setText(QString::number(App::TcpServerPort));
+    ui->txtServerPort->setText(QString::number(AppConfig::TcpServerPort));
     connect(ui->txtServerPort, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 
     this->changeTimer();
@@ -61,23 +66,23 @@ void frmTcpClient::initConfig()
 
 void frmTcpClient::saveConfig()
 {
-    App::HexSendTcpClient = ui->ckHexSend->isChecked();
-    App::HexReceiveTcpClient = ui->ckHexReceive->isChecked();
-    App::AsciiTcpClient = ui->ckAscii->isChecked();
-    App::DebugTcpClient = ui->ckDebug->isChecked();
-    App::AutoSendTcpClient = ui->ckAutoSend->isChecked();
-    App::IntervalTcpClient = ui->cboxInterval->currentText().toInt();
-    App::TcpServerIP = ui->txtServerIP->text().trimmed();
-    App::TcpServerPort = ui->txtServerPort->text().trimmed().toInt();
-    App::writeConfig();
+    AppConfig::HexSendTcpClient = ui->ckHexSend->isChecked();
+    AppConfig::HexReceiveTcpClient = ui->ckHexReceive->isChecked();
+    AppConfig::AsciiTcpClient = ui->ckAscii->isChecked();
+    AppConfig::DebugTcpClient = ui->ckDebug->isChecked();
+    AppConfig::AutoSendTcpClient = ui->ckAutoSend->isChecked();
+    AppConfig::IntervalTcpClient = ui->cboxInterval->currentText().toInt();
+    AppConfig::TcpServerIP = ui->txtServerIP->text().trimmed();
+    AppConfig::TcpServerPort = ui->txtServerPort->text().trimmed().toInt();
+    AppConfig::writeConfig();
 
     this->changeTimer();
 }
 
 void frmTcpClient::changeTimer()
 {
-    timer->setInterval(App::IntervalTcpClient);
-    if (App::AutoSendTcpClient) {
+    timer->setInterval(AppConfig::IntervalTcpClient);
+    if (AppConfig::AutoSendTcpClient) {
         if (!timer->isActive()) {
             timer->start();
         }
@@ -138,22 +143,22 @@ void frmTcpClient::connected()
 void frmTcpClient::disconnected()
 {
     isOk = false;
-    tcpSocket->abort();
+    socket->abort();
     ui->btnConnect->setText("连接");
     append(1, "服务器断开");
 }
 
 void frmTcpClient::readData()
 {
-    QByteArray data = tcpSocket->readAll();
+    QByteArray data = socket->readAll();
     if (data.length() <= 0) {
         return;
     }
 
     QString buffer;
-    if (App::HexReceiveTcpClient) {
+    if (AppConfig::HexReceiveTcpClient) {
         buffer = QUIHelper::byteArrayToHexStr(data);
-    } else if (App::AsciiTcpClient) {
+    } else if (AppConfig::AsciiTcpClient) {
         buffer = QUIHelper::byteArrayToAsciiStr(data);
     } else {
         buffer = QString(data);
@@ -162,11 +167,11 @@ void frmTcpClient::readData()
     append(1, buffer);
 
     //自动回复数据,可以回复的数据是以;隔开,每行可以带多个;所以这里不需要继续判断
-    if (App::DebugTcpClient) {
-        int count = App::Keys.count();
+    if (AppConfig::DebugTcpClient) {
+        int count = AppConfig::Keys.count();
         for (int i = 0; i < count; i++) {
-            if (App::Keys.at(i) == buffer) {
-                sendData(App::Values.at(i));
+            if (AppConfig::Keys.at(i) == buffer) {
+                sendData(AppConfig::Values.at(i));
                 break;
             }
         }
@@ -176,42 +181,32 @@ void frmTcpClient::readData()
 void frmTcpClient::sendData(const QString &data)
 {
     QByteArray buffer;
-    if (App::HexSendTcpClient) {
+    if (AppConfig::HexSendTcpClient) {
         buffer = QUIHelper::hexStrToByteArray(data);
-    } else if (App::AsciiTcpClient) {
+    } else if (AppConfig::AsciiTcpClient) {
         buffer = QUIHelper::asciiStrToByteArray(data);
     } else {
-        buffer = data.toLatin1();
+        buffer = data.toUtf8();
     }
 
-    tcpSocket->write(buffer);
+    socket->write(buffer);
     append(0, data);
 }
 
 void frmTcpClient::on_btnConnect_clicked()
 {
     if (ui->btnConnect->text() == "连接") {
-        tcpSocket->abort();
-        tcpSocket->connectToHost(App::TcpServerIP, App::TcpServerPort);
+        socket->abort();
+        socket->connectToHost(AppConfig::TcpServerIP, AppConfig::TcpServerPort);
     } else {
-        tcpSocket->abort();
+        socket->abort();
     }
 }
 
 void frmTcpClient::on_btnSave_clicked()
 {
     QString data = ui->txtMain->toPlainText();
-    if (data.length() <= 0) {
-        return;
-    }
-
-    QString fileName = QString("%1/%2.txt").arg(QUIHelper::appPath()).arg(STRDATETIME);
-    QFile file(fileName);
-    if (file.open(QFile::WriteOnly | QFile::Text)) {
-        file.write(data.toUtf8());
-        file.close();
-    }
-
+    AppConfig::saveData(data);
     on_btnClear_clicked();
 }
 

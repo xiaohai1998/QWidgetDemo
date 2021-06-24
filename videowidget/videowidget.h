@@ -23,13 +23,7 @@
 class QTimer;
 
 #ifdef quc
-#if (QT_VERSION < QT_VERSION_CHECK(5,7,0))
-#include <QtDesigner/QDesignerExportWidget>
-#else
-#include <QtUiPlugin/QDesignerExportWidget>
-#endif
-
-class QDESIGNER_WIDGET_EXPORT VideoWidget : public QWidget
+class Q_DECL_EXPORT VideoWidget : public QWidget
 #else
 class VideoWidget : public QWidget
 #endif
@@ -51,7 +45,8 @@ class VideoWidget : public QWidget
     Q_PROPERTY(int timeout READ getTimeout WRITE setTimeout)
     Q_PROPERTY(int borderWidth READ getBorderWidth WRITE setBorderWidth)
     Q_PROPERTY(QColor borderColor READ getBorderColor WRITE setBorderColor)
-    Q_PROPERTY(QColor focusColor READ getFocusColor WRITE setFocusColor)    
+    Q_PROPERTY(QColor focusColor READ getFocusColor WRITE setFocusColor)
+    Q_PROPERTY(QColor bgColor READ getBgColor WRITE setBgColor)
     Q_PROPERTY(QString bgText READ getBgText WRITE setBgText)
     Q_PROPERTY(QImage bgImage READ getBgImage WRITE setBgImage)
 
@@ -128,7 +123,8 @@ private:
     int timeout;                    //超时时间
     int borderWidth;                //边框宽度
     QColor borderColor;             //边框颜色
-    QColor focusColor;              //有焦点边框颜色    
+    QColor focusColor;              //有焦点边框颜色
+    QColor bgColor;                 //背景颜色
     QString bgText;                 //默认无图像显示文字
     QImage bgImage;                 //默认无图像背景图片
 
@@ -148,6 +144,10 @@ private:
     OSDFormat osd2Format;           //标签2文本格式
     OSDPosition osd2Position;       //标签2位置
 
+    int faceBorder;                 //人脸框粗细
+    QColor faceColor;               //人脸框颜色
+    QList<QRect> faceRects;         //人脸框集合
+
 private:
     //初始化解码线程
     void initThread();
@@ -158,8 +158,14 @@ private:
 
 public:
     QImage getImage()               const;
-    QDateTime getLastTime()         const;
+    QPixmap getPixmap()             const;
     QString getUrl()                const;
+    QDateTime getLastTime()         const;
+
+    bool getCallback()              const;
+    bool getIsPlaying()             const;
+    bool getIsRtsp()                const;
+    bool getIsUsbCamera()           const;
 
     bool getCopyImage()             const;
     bool getCheckLive()             const;
@@ -174,6 +180,7 @@ public:
     int getBorderWidth()            const;
     QColor getBorderColor()         const;
     QColor getFocusColor()          const;
+    QColor getBgColor()             const;
     QString getBgText()             const;
     QImage getBgImage()             const;
 
@@ -193,6 +200,10 @@ public:
     OSDFormat getOSD2Format()       const;
     OSDPosition getOSD2Position()   const;
 
+    int getFaceBorder()             const;
+    QColor getFaceColor()           const;
+    QList<QRect> getFaceRects()     const;
+
     QSize sizeHint()                const;
     QSize minimumSizeHint()         const;
 
@@ -206,11 +217,16 @@ private slots:
 
 signals:
     //播放成功
-    void receivePlayOk();
+    void receivePlayStart();
     //播放失败
     void receivePlayError();
     //播放结束
     void receivePlayFinsh();
+
+    //总时长
+    void fileLengthReceive(qint64 length);
+    //当前播放时长
+    void filePositionReceive(qint64 position);
 
     //收到图片信号
     void receiveImage(const QImage &image);
@@ -222,6 +238,23 @@ signals:
     void btnClicked(const QString &objName);
 
 public slots:
+    //获取长度
+    uint getLength();
+    //获取当前播放位置
+    uint getPosition();
+    //设置播放位置
+    void setPosition(int position);
+
+    //获取静音状态
+    bool getMuted();
+    //设置静音
+    void setMuted(bool muted);
+
+    //获取音量
+    int getVolume();
+    //设置音量
+    void setVolume(int volume);
+
     //设置显示间隔
     void setInterval(int interval);
     //设置休眠时间
@@ -230,15 +263,22 @@ public slots:
     void setCheckTime(int checkTime);
     //设置是否检测连接
     void setCheckConn(bool checkConn);
+
     //设置视频流地址
     void setUrl(const QString &url);
+    //设置是否采用回调
+    void setCallback(bool callback);
     //设置硬件解码器名称
     void setHardware(const QString &hardware);
+    //设置通信协议
+    void setTransport(const QString &transport);
 
     //设置是否保存文件
     void setSaveFile(bool saveFile);
     //设置保存间隔
     void setSaveInterval(int saveInterval);
+    //设置定时保存文件唯一标识符
+    void setFileFlag(const QString &fileFlag);
     //设置保存文件夹
     void setSavePath(const QString &savePath);
     //设置保存文件名称
@@ -254,7 +294,7 @@ public slots:
     void setFillImage(bool fillImage);
 
     //设置是否启用悬浮条
-    void setFlowEnable(bool flowEnable);    
+    void setFlowEnable(bool flowEnable);
     //设置悬浮条背景颜色
     void setFlowBgColor(const QColor &flowBgColor);
     //设置悬浮条按下颜色
@@ -267,7 +307,9 @@ public slots:
     //设置边框颜色
     void setBorderColor(const QColor &borderColor);
     //设置有焦点边框颜色
-    void setFocusColor(const QColor &focusColor);    
+    void setFocusColor(const QColor &focusColor);
+    //设置背景颜色
+    void setBgColor(const QColor &bgColor);
     //设置无图像文字
     void setBgText(const QString &bgText);
     //设置无图像背景图
@@ -303,6 +345,19 @@ public slots:
     //设置标签2位置
     void setOSD2Position(const OSDPosition &osdPosition);
 
+    //设置值自动进行枚举转换
+    void setOSD1Format(quint8 osdFormat);
+    void setOSD2Format(quint8 osdFormat);
+    void setOSD1Position(quint8 osdPosition);
+    void setOSD2Position(quint8 osdPosition);
+
+    //设置人脸框粗细
+    void setFaceBorder(int faceBorder);
+    //设置人脸框颜色
+    void setFaceColor(const QColor &faceColor);
+    //设置人脸框区域集合
+    void setFaceRects(const QList<QRect> &faceRects);
+
     //打开设备
     void open();
     //暂停
@@ -312,10 +367,11 @@ public slots:
     //关闭设备
     void close();
     //重新加载
-    void restart();
+    void restart(int delayOpen = 500);
     //清空
     void clear();
-
+    //快照
+    void snap(const QString &fileName);
 };
 
 #endif // VIDEOWIDGET_H

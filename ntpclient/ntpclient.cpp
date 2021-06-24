@@ -1,6 +1,7 @@
 ﻿#include "ntpclient.h"
 #include "qmutex.h"
 #include "qudpsocket.h"
+#include "qdebug.h"
 
 QScopedPointer<NtpClient> NtpClient::self;
 NtpClient *NtpClient::Instance()
@@ -18,7 +19,7 @@ NtpClient *NtpClient::Instance()
 
 NtpClient::NtpClient(QObject *parent) : QObject(parent)
 {
-    ntpIP = "202.120.2.101";
+    ntpIP = "ntp1.aliyun.com";
 
     udpSocket = new QUdpSocket(this);
     connect(udpSocket, SIGNAL(connected()), this, SLOT(sendData()));
@@ -33,7 +34,7 @@ void NtpClient::sendData()
     qint8 STRATUM = 0;
     qint8 POLL = 4;
     qint8 PREC = -6;
-    QDateTime epoch(QDate(1900, 1, 1));
+    QDateTime epoch(QDate(1900, 1, 1), QTime(0, 0, 0));
     qint32 second = quint32(epoch.secsTo(QDateTime::currentDateTime()));
 
     qint32 temp = 0;
@@ -55,11 +56,16 @@ void NtpClient::sendData()
     udpSocket->write(timeRequest);
 }
 
+void NtpClient::setTime_t(uint secsSince1Jan1970UTC)
+{
+
+}
+
 void NtpClient::readData()
 {
     QByteArray newTime;
-    QDateTime epoch(QDate(1900, 1, 1));
-    QDateTime unixStart(QDate(1970, 1, 1));
+    QDateTime epoch(QDate(1900, 1, 1), QTime(0, 0, 0));
+    QDateTime unixStart(QDate(1970, 1, 1), QTime(0, 0, 0));
 
     while (udpSocket->hasPendingDatagrams()) {
         newTime.resize(udpSocket->pendingDatagramSize());
@@ -78,11 +84,17 @@ void NtpClient::readData()
     }
 
     QDateTime dateTime;
-    dateTime.setTime_t(seconds - epoch.secsTo(unixStart));
+    uint secs = seconds - epoch.secsTo(unixStart);
+
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+    dateTime.setTime_t(secs);
+#else
+    dateTime.setSecsSinceEpoch(secs);
+#endif
 
 #ifdef __arm__
 #ifdef arma9
-    dateTime = dateTime.addSecs(60 * 60 * 8);
+    dateTime = dateTime.addSecs(8 * 60 * 60);
 #endif
 #endif
     udpSocket->disconnectFromHost();

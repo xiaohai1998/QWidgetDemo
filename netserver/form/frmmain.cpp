@@ -1,10 +1,8 @@
 ﻿#include "frmmain.h"
 #include "ui_frmmain.h"
-#include "quiwidget.h"
+#include "quihelper.h"
 
-frmMain::frmMain(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::frmMain)
+frmMain::frmMain(QWidget *parent) : QWidget(parent), ui(new Ui::frmMain)
 {
     ui->setupUi(this);
     this->initForm();
@@ -33,25 +31,22 @@ void frmMain::initForm()
     connect(tcpServer2, SIGNAL(sendData(QString, int, QString, QString)), this, SLOT(sendData2(QString, int, QString, QString)));
     connect(tcpServer2, SIGNAL(receiveData(QString, int, QString, QString)), this, SLOT(receiveData2(QString, int, QString, QString)));
     connect(tcpServer2, SIGNAL(receiveDeviceID(QString, int, QString)), this, SLOT(receiveDeviceID2(QString, int, QString)));
-
-    QUIHelper::setLabStyle(ui->labCount1, 3);
-    QUIHelper::setLabStyle(ui->labCount2, 3);
 }
 
 void frmMain::initConfig()
 {
-    ui->txtListenPort1->setText(QString::number(App::ListenPort1));
+    ui->txtListenPort1->setText(QString::number(AppConfig::ListenPort1));
     connect(ui->txtListenPort1, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 
-    ui->txtListenPort2->setText(QString::number(App::ListenPort2));
+    ui->txtListenPort2->setText(QString::number(AppConfig::ListenPort2));
     connect(ui->txtListenPort2, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 }
 
 void frmMain::saveConfig()
 {
-    App::ListenPort1 = ui->txtListenPort1->text().trimmed().toInt();
-    App::ListenPort2 = ui->txtListenPort1->text().trimmed().toInt();
-    App::writeConfig();
+    AppConfig::ListenPort1 = ui->txtListenPort1->text().trimmed().toInt();
+    AppConfig::ListenPort2 = ui->txtListenPort2->text().trimmed().toInt();
+    AppConfig::writeConfig();
 }
 
 void frmMain::append1(int type, const QString &data, bool clear)

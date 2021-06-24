@@ -20,7 +20,7 @@ private:
     Ui::frmTcpClient *ui;
 
     bool isOk;
-    QTcpSocket *tcpSocket;
+    QTcpSocket *socket;
     QTimer *timer;
 
 private slots:
@@ -30,6 +30,7 @@ private slots:
     void changeTimer();
     void append(int type, const QString &data, bool clear = false);
 
+private slots:
     void connected();
     void disconnected();
     void readData();

@@ -6,13 +6,18 @@
 #include "qlabel.h"
 #include "qlineedit.h"
 #include "qapplication.h"
-#include "qdesktopwidget.h"
 #include "qtimer.h"
 #include "qevent.h"
 #include "qdebug.h"
 
-#if (QT_VERSION > QT_VERSION_CHECK(5,0,0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
 #include "qscreen.h"
+#define deskGeometry qApp->primaryScreen()->geometry()
+#define deskGeometry2 qApp->primaryScreen()->availableGeometry()
+#else
+#include "qdesktopwidget.h"
+#define deskGeometry qApp->desktop()->geometry()
+#define deskGeometry2 qApp->desktop()->availableGeometry()
 #endif
 
 ColorWidget *ColorWidget::instance = 0;
@@ -86,14 +91,14 @@ ColorWidget::ColorWidget(QWidget *parent) : QWidget(parent)
     txtPoint = new QLineEdit(this);
     gridLayout->addWidget(txtPoint, 2, 2, 1, 1);
 
-    label->setText("当前颜色显示");
+    label->setText("当前颜色");
     labWeb->setText("web值:");
     labRgb->setText("rgb值:");
     labPoint->setText("坐标值:");
 
     this->setLayout(gridLayout);
     this->setWindowTitle("屏幕拾色器");
-    this->setFixedSize(270, 108);
+    this->setFixedSize(300, 108);
 
     cp = QApplication::clipboard();
     pressed = false;
@@ -105,7 +110,7 @@ ColorWidget::ColorWidget(QWidget *parent) : QWidget(parent)
 }
 
 ColorWidget::~ColorWidget()
-{    
+{
 }
 
 void ColorWidget::mousePressEvent(QMouseEvent *e)
@@ -128,21 +133,19 @@ void ColorWidget::showColorValue()
 
     int x = QCursor::pos().x();
     int y = QCursor::pos().y();
-
     txtPoint->setText(tr("x:%1  y:%2").arg(x).arg(y));
-    QString strDecimalValue, strHex, strTextColor;
-    int red, green, blue;
 
-#if (QT_VERSION <= QT_VERSION_CHECK(5,0,0))
-    QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId(), x, y, 2, 2);
+#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
+    QPixmap pixmap = QPixmap::grabWindow(qApp->desktop()->winId(), x, y, 2, 2);
 #else
-    QScreen *screen = QApplication::primaryScreen();
-    QPixmap pixmap = screen->grabWindow(QApplication::desktop()->winId(), x, y, 2, 2);
+    QScreen *screen = qApp->primaryScreen();
+    QPixmap pixmap = screen->grabWindow(0, x, y, 2, 2);
 #endif
 
+    int red, green, blue;
+    QString strDecimalValue, strHex;
     if (!pixmap.isNull()) {
         QImage image = pixmap.toImage();
-
         if (!image.isNull()) {
             if (image.valid(0, 0)) {
                 QColor color = image.pixel(0, 0);
@@ -159,13 +162,12 @@ void ColorWidget::showColorValue()
         }
     }
 
-    if (red > 200 && green > 200 && blue > 200) {
-        strTextColor = "10, 10, 10";
-    } else {
-        strTextColor = "255, 255, 255";
-    }
+    //根据背景色自动计算合适的前景色
+    QColor color(red, green, blue);
+    double gray = (0.299 * color.red() + 0.587 * color.green() + 0.114 * color.blue()) / 255;
+    QColor textColor = gray > 0.5 ? Qt::black : Qt::white;
 
-    QString str = tr("background-color: rgb(%1);color: rgb(%2)").arg(strDecimalValue).arg(strTextColor);
+    QString str = tr("background:rgb(%1);color:%2").arg(strDecimalValue).arg(textColor.name());
     labColor->setStyleSheet(str);
     txtRgb->setText(strDecimalValue);
     txtWeb->setText(strHex);

@@ -24,10 +24,10 @@ void frmNavButton::initForm()
     quint32 pixHeight = 15;
 
     //从图形字体获得图片,也可以从资源文件或者路径文件获取
-    QChar icon = 0xf061;
-    QPixmap iconNormal = IconHelper::Instance()->getPixmap(QColor(100, 100, 100).name(), icon, size, pixWidth, pixHeight);
-    QPixmap iconHover = IconHelper::Instance()->getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
-    QPixmap iconCheck = IconHelper::Instance()->getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
+    int icon = 0xf061;
+    QPixmap iconNormal = IconHelper::getPixmap(QColor(100, 100, 100).name(), icon, size, pixWidth, pixHeight);
+    QPixmap iconHover = IconHelper::getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
+    QPixmap iconCheck = IconHelper::getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
 
     btns1 << ui->navButton11 << ui->navButton12 << ui->navButton13 << ui->navButton14;
     for (int i = 0; i < btns1.count(); i++) {
@@ -49,8 +49,8 @@ void frmNavButton::initForm()
     pixWidth = 20;
     pixHeight = 20;
 
-    QList<QChar> pixChar;
-    pixChar << 0xf17b << 0xf002 << 0xf013 << 0xf021 << 0xf0e0 << 0xf135;
+    QList<int> icons;
+    icons << 0xf17b << 0xf002 << 0xf013 << 0xf021 << 0xf0e0 << 0xf135;
     QColor normalBgColor = QColor("#2D9191");
     QColor hoverBgColor = QColor("#187294");
     QColor checkBgColor = QColor("#145C75");
@@ -72,10 +72,10 @@ void frmNavButton::initForm()
         btn->setIconSize(QSize(22, 22));
 
         //分开设置图标
-        QChar icon = pixChar.at(i);
-        QPixmap iconNormal = IconHelper::Instance()->getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconHover = IconHelper::Instance()->getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconCheck = IconHelper::Instance()->getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
+        int icon = icons.at(i);
+        QPixmap iconNormal = IconHelper::getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconHover = IconHelper::getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconCheck = IconHelper::getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
 
         btn->setIconNormal(iconNormal);
         btn->setIconHover(iconHover);
@@ -114,10 +114,10 @@ void frmNavButton::initForm()
         btn->setIconSize(QSize(22, 22));
 
         //分开设置图标
-        QChar icon = pixChar.at(i);
-        QPixmap iconNormal = IconHelper::Instance()->getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconHover = IconHelper::Instance()->getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconCheck = IconHelper::Instance()->getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
+        int icon = icons.at(i);
+        QPixmap iconNormal = IconHelper::getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconHover = IconHelper::getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconCheck = IconHelper::getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
 
         btn->setIconNormal(iconNormal);
         btn->setIconHover(iconHover);
@@ -138,9 +138,9 @@ void frmNavButton::initForm()
     pixHeight = 15;
 
     icon = 0xf105;
-    iconNormal = IconHelper::Instance()->getPixmap(QColor(100, 100, 100).name(), icon, size, pixWidth, pixHeight);
-    iconHover = IconHelper::Instance()->getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
-    iconCheck = IconHelper::Instance()->getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
+    iconNormal = IconHelper::getPixmap(QColor(100, 100, 100).name(), icon, size, pixWidth, pixHeight);
+    iconHover = IconHelper::getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
+    iconCheck = IconHelper::getPixmap(QColor(255, 255, 255).name(), icon, size, pixWidth, pixHeight);
 
     btns4 << ui->navButton41 << ui->navButton42 << ui->navButton43 << ui->navButton44;
     for (int i = 0; i < btns4.count(); i++) {
@@ -192,10 +192,10 @@ void frmNavButton::initForm()
         btn->setIconSize(QSize(22, 22));
 
         //分开设置图标
-        QChar icon = pixChar.at(i);
-        QPixmap iconNormal = IconHelper::Instance()->getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconHover = IconHelper::Instance()->getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconCheck = IconHelper::Instance()->getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
+        int icon = icons.at(i);
+        QPixmap iconNormal = IconHelper::getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconHover = IconHelper::getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconCheck = IconHelper::getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
 
         btn->setIconNormal(iconNormal);
         btn->setIconHover(iconHover);
@@ -232,10 +232,10 @@ void frmNavButton::initForm()
         btn->setIconSize(QSize(22, 22));
 
         //分开设置图标
-        QChar icon = pixChar.at(i);
-        QPixmap iconNormal = IconHelper::Instance()->getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconHover = IconHelper::Instance()->getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
-        QPixmap iconCheck = IconHelper::Instance()->getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
+        int icon = icons.at(i);
+        QPixmap iconNormal = IconHelper::getPixmap(normalTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconHover = IconHelper::getPixmap(hoverTextColor.name(), icon, size, pixWidth, pixHeight);
+        QPixmap iconCheck = IconHelper::getPixmap(checkTextColor.name(), icon, size, pixWidth, pixHeight);
 
         btn->setIconNormal(iconNormal);
         btn->setIconHover(iconHover);

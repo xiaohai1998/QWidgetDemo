@@ -17,24 +17,24 @@ public:
     ~frmTcpServer();
 
 private:
-    Ui::frmTcpServer *ui;    
+    Ui::frmTcpServer *ui;
 
     bool isOk;
-    TcpServer *tcpServer;
+    TcpServer *server;
     QTimer *timer;
 
 private slots:
-    void initForm();
-    void initIP();
+    void initForm();    
     void initConfig();
     void saveConfig();
     void changeTimer();
     void append(int type, const QString &data, bool clear = false);
 
+private slots:
     void clientConnected(const QString &ip, int port);
     void clientDisconnected(const QString &ip, int port);
     void sendData(const QString &ip, int port, const QString &data);
-    void receiveData(const QString &ip, int port, const QString &data);   
+    void receiveData(const QString &ip, int port, const QString &data);
 
 private slots:
     void on_btnListen_clicked();

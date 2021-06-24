@@ -1,6 +1,6 @@
 ﻿#include "frmudpclient.h"
 #include "ui_frmudpclient.h"
-#include "quiwidget.h"
+#include "quihelper.h"
 
 frmUdpClient::frmUdpClient(QWidget *parent) : QWidget(parent), ui(new Ui::frmUdpClient)
 {
@@ -16,40 +16,40 @@ frmUdpClient::~frmUdpClient()
 
 void frmUdpClient::initForm()
 {
-    udpSocket = new QUdpSocket(this);
-    connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    socket = new QUdpSocket(this);
+    connect(socket, SIGNAL(readyRead()), this, SLOT(readData()));
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(on_btnSend_clicked()));
 
-    ui->cboxInterval->addItems(App::Intervals);
-    ui->cboxData->addItems(App::Datas);
+    ui->cboxInterval->addItems(AppConfig::Intervals);
+    ui->cboxData->addItems(AppConfig::Datas);
 }
 
 void frmUdpClient::initConfig()
 {
-    ui->ckHexSend->setChecked(App::HexSendUdpClient);
+    ui->ckHexSend->setChecked(AppConfig::HexSendUdpClient);
     connect(ui->ckHexSend, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckHexReceive->setChecked(App::HexReceiveUdpClient);
+    ui->ckHexReceive->setChecked(AppConfig::HexReceiveUdpClient);
     connect(ui->ckHexReceive, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckAscii->setChecked(App::AsciiUdpClient);
+    ui->ckAscii->setChecked(AppConfig::AsciiUdpClient);
     connect(ui->ckAscii, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckDebug->setChecked(App::DebugUdpClient);
+    ui->ckDebug->setChecked(AppConfig::DebugUdpClient);
     connect(ui->ckDebug, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->ckAutoSend->setChecked(App::AutoSendUdpClient);
+    ui->ckAutoSend->setChecked(AppConfig::AutoSendUdpClient);
     connect(ui->ckAutoSend, SIGNAL(stateChanged(int)), this, SLOT(saveConfig()));
 
-    ui->cboxInterval->setCurrentIndex(ui->cboxInterval->findText(QString::number(App::IntervalUdpClient)));
+    ui->cboxInterval->setCurrentIndex(ui->cboxInterval->findText(QString::number(AppConfig::IntervalUdpClient)));
     connect(ui->cboxInterval, SIGNAL(currentIndexChanged(int)), this, SLOT(saveConfig()));
 
-    ui->txtServerIP->setText(App::UdpServerIP);
+    ui->txtServerIP->setText(AppConfig::UdpServerIP);
     connect(ui->txtServerIP, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 
-    ui->txtServerPort->setText(QString::number(App::UdpServerPort));
+    ui->txtServerPort->setText(QString::number(AppConfig::UdpServerPort));
     connect(ui->txtServerPort, SIGNAL(textChanged(QString)), this, SLOT(saveConfig()));
 
     this->changeTimer();
@@ -57,23 +57,23 @@ void frmUdpClient::initConfig()
 
 void frmUdpClient::saveConfig()
 {
-    App::HexSendUdpClient = ui->ckHexSend->isChecked();
-    App::HexReceiveUdpClient = ui->ckHexReceive->isChecked();
-    App::AsciiUdpClient = ui->ckAscii->isChecked();
-    App::DebugUdpClient = ui->ckDebug->isChecked();
-    App::AutoSendUdpClient = ui->ckAutoSend->isChecked();
-    App::IntervalUdpClient = ui->cboxInterval->currentText().toInt();
-    App::UdpServerIP = ui->txtServerIP->text().trimmed();
-    App::UdpServerPort = ui->txtServerPort->text().trimmed().toInt();
-    App::writeConfig();
+    AppConfig::HexSendUdpClient = ui->ckHexSend->isChecked();
+    AppConfig::HexReceiveUdpClient = ui->ckHexReceive->isChecked();
+    AppConfig::AsciiUdpClient = ui->ckAscii->isChecked();
+    AppConfig::DebugUdpClient = ui->ckDebug->isChecked();
+    AppConfig::AutoSendUdpClient = ui->ckAutoSend->isChecked();
+    AppConfig::IntervalUdpClient = ui->cboxInterval->currentText().toInt();
+    AppConfig::UdpServerIP = ui->txtServerIP->text().trimmed();
+    AppConfig::UdpServerPort = ui->txtServerPort->text().trimmed().toInt();
+    AppConfig::writeConfig();
 
     this->changeTimer();
 }
 
 void frmUdpClient::changeTimer()
 {
-    timer->setInterval(App::IntervalUdpClient);
-    if (App::AutoSendUdpClient) {
+    timer->setInterval(AppConfig::IntervalUdpClient);
+    if (AppConfig::AutoSendUdpClient) {
         if (!timer->isActive()) {
             timer->start();
         }
@@ -131,13 +131,13 @@ void frmUdpClient::readData()
     QByteArray data;
     QString buffer;
 
-    while (udpSocket->hasPendingDatagrams()) {
-        data.resize(udpSocket->pendingDatagramSize());
-        udpSocket->readDatagram(data.data(), data.size(), &host, &port);
+    while (socket->hasPendingDatagrams()) {
+        data.resize(socket->pendingDatagramSize());
+        socket->readDatagram(data.data(), data.size(), &host, &port);
 
-        if (App::HexReceiveUdpClient) {
+        if (AppConfig::HexReceiveUdpClient) {
             buffer = QUIHelper::byteArrayToHexStr(data);
-        } else if (App::AsciiUdpClient) {
+        } else if (AppConfig::AsciiUdpClient) {
             buffer = QUIHelper::byteArrayToAsciiStr(data);
         } else {
             buffer = QString(data);
@@ -152,11 +152,11 @@ void frmUdpClient::readData()
         QString str = QString("[%1:%2] %3").arg(ip).arg(port).arg(buffer);
         append(1, str);
 
-        if (App::DebugUdpClient) {
-            int count = App::Keys.count();
+        if (AppConfig::DebugUdpClient) {
+            int count = AppConfig::Keys.count();
             for (int i = 0; i < count; i++) {
-                if (App::Keys.at(i) == buffer) {
-                    sendData(ip, port, App::Values.at(i));
+                if (AppConfig::Keys.at(i) == buffer) {
+                    sendData(ip, port, AppConfig::Values.at(i));
                     break;
                 }
             }
@@ -167,15 +167,15 @@ void frmUdpClient::readData()
 void frmUdpClient::sendData(const QString &ip, int port, const QString &data)
 {
     QByteArray buffer;
-    if (App::HexSendUdpClient) {
+    if (AppConfig::HexSendUdpClient) {
         buffer = QUIHelper::hexStrToByteArray(data);
-    } else if (App::AsciiUdpClient) {
+    } else if (AppConfig::AsciiUdpClient) {
         buffer = QUIHelper::asciiStrToByteArray(data);
     } else {
-        buffer = data.toLatin1();
+        buffer = data.toUtf8();
     }
 
-    udpSocket->writeDatagram(buffer, QHostAddress(ip), port);
+    socket->writeDatagram(buffer, QHostAddress(ip), port);
 
     QString str = QString("[%1:%2] %3").arg(ip).arg(port).arg(data);
     append(0, str);
@@ -184,17 +184,7 @@ void frmUdpClient::sendData(const QString &ip, int port, const QString &data)
 void frmUdpClient::on_btnSave_clicked()
 {
     QString data = ui->txtMain->toPlainText();
-    if (data.length() <= 0) {
-        return;
-    }
-
-    QString fileName = QString("%1/%2.txt").arg(QUIHelper::appPath()).arg(STRDATETIME);
-    QFile file(fileName);
-    if (file.open(QFile::WriteOnly | QFile::Text)) {
-        file.write(data.toUtf8());
-        file.close();
-    }
-
+    AppConfig::saveData(data);
     on_btnClear_clicked();
 }
 
@@ -210,5 +200,5 @@ void frmUdpClient::on_btnSend_clicked()
         return;
     }
 
-    sendData(App::UdpServerIP, App::UdpServerPort, data);
+    sendData(AppConfig::UdpServerIP, AppConfig::UdpServerPort, data);
 }

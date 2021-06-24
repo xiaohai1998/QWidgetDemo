@@ -24,8 +24,7 @@ SUBDIRS += maskwidget       #遮罩层窗体
 SUBDIRS += battery          #电池电量控件
 SUBDIRS += lineeditnext     #文本框回车焦点下移
 SUBDIRS += zhtopy           #汉字转拼音
-SUBDIRS += qwtdemo          #qwt的源码版本，无需插件，直接源码集成到你的项目即可
-SUBDIRS += buttondefence    #通用按钮地图效果
+SUBDIRS += devicebutton     #设备按钮地图效果
 SUBDIRS += mouseline        #鼠标定位十字线
 SUBDIRS += emailtool        #邮件发送工具
 SUBDIRS += ntpclient        #NTP服务器时间同步
@@ -33,14 +32,25 @@ SUBDIRS += lunarcalendarwidget#农历控件
 SUBDIRS += videowidget      #通用视频控件
 SUBDIRS += screenwidget     #屏幕截图控件
 SUBDIRS += imageswitch      #图片开关控件
+SUBDIRS += netserver        #网络中转服务器
+SUBDIRS += base64           #图片文字base64互换
+SUBDIRS += smoothcurve      #平滑曲线
+
+win32 {
+SUBDIRS += ffmpegdemo       #视频流播放ffmpeg内核
+SUBDIRS += vlcdemo          #视频流播放vlc内核
+SUBDIRS += mpvdemo          #视频流播放mpv内核
+SUBDIRS += miniblink        #miniblink示例
+}
 
 #如果你电脑对应的Qt版本有webkit或者webengine组件可以自行打开
 #SUBDIRS += echartgauge      #echart仪表盘含交互支持webkit及webengine
-#ffmpegdemo默认提供的win的lib,如果是win可以自行打开
-#SUBDIRS += ffmpegdemo       #视频流播放ffmpeg内核
-#vlcdemo默认提供的win的lib,如果是win可以自行打开
-#SUBDIRS += vlcdemo          #视频流播放vlc内核
-#designer项目只支持Qt4,如果是Qt4可以自行打开
-#SUBDIRS += designer         #QtDesigner4源码
 
-SUBDIRS += netserver        #网络中转服务器
+lessThan(QT_MAJOR_VERSION, 4) {
+#SUBDIRS += designer         #QtDesigner4源码
+}
+
+#qwt项目需要等官方适配了qwt组件才能适配
+lessThan(QT_MAJOR_VERSION, 6) {
+SUBDIRS += qwtdemo          #qwt的源码版本，无需插件，直接源码集成到你的项目即可
+}

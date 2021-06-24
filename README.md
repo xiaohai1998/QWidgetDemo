@@ -1,7 +1,8 @@
 ﻿#### 一、目录说明
-1. **可以选择打开QWidgetDemo.pro一次性编译所有的，也可以进入到目录下打开pro进行编译**
-2. **如果发现有些子项目没有加载请打开QWidgetDemo.pro仔细看里面的注释**
-3. **编译好的可执行文件在源码下的bin目录**
+1. **可以选择打开QWidgetDemo.pro一次性编译所有的，也可以进入到目录下打开pro进行编译。**
+2. **如果发现有些子项目没有加载请打开QWidgetDemo.pro仔细看里面的注释。**
+3. **编译好的可执行文件在源码同级目录下的bin目录。**
+4. **亲测Qt4.6到Qt6.1所有版本，亲测win、linux、mac、uos等系统。**
 
 | 编号 | 文件夹 | 描述 |
 | ------ | ------ | ------ |
@@ -29,7 +30,7 @@
 | 22 | lineeditnext | 文本框回车焦点下移 |
 | 23 | zhtopy | 汉字转拼音 |
 | 24 | qwtdemo | qwt的源码版本，无需插件，直接源码集成到你的项目即可 |
-| 25 | buttondefence | 通用按钮地图效果 |
+| 25 | devicebutton | 设备按钮地图效果 |
 | 26 | mouseline | 鼠标定位十字线 |
 | 27 | emailtool | 邮件发送工具 |
 | 28 | ntpclient | NTP服务器时间同步 |
@@ -44,6 +45,10 @@
 | 37 | live | 程序守护进程 |
 | 38 | designer | QtDesigner4源码 |
 | 39 | netserver | 网络中转服务器 |
+| 40 | mpvdemo | 视频流播放mpv内核 |
+| 41 | miniblink | miniblink示例 |
+| 42 | base64 | 图片文字base64互换 |
+| 43 | smoothcurve | 平滑曲线 |
 
 ### 二、学习群
 1. **Qt交流大会群 853086607(雨田哥)**
@@ -77,7 +82,7 @@
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/lineeditnext.gif)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/zhtopy.gif)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/qwtdemo.jpg)
-![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/buttondefence.gif)
+![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/devicebutton.gif)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/mouseline.gif)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/emailtool.gif)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/ntpclient.gif)
@@ -92,3 +97,6 @@
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/live.png)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/netserver.jpg)
 ![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/designer.png)
+![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/miniblink.jpg)
+![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/base64.png)
+![avatar](https://github.com/feiyangqingyun/QWidgetDemo/raw/master/0snap/smoothcurve.gif)

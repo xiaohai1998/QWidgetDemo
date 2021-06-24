@@ -1,12 +1,13 @@
 ﻿#pragma execution_character_set("utf-8")
 #include "widget.h"
-
 #include <QApplication>
 #include <QTextCodec>
-#include <QDesktopWidget>
 
 int main(int argc, char *argv[])
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
     QApplication a(argc, argv);
 
     QFont font;
@@ -31,13 +32,6 @@ int main(int argc, char *argv[])
     Widget w;
     w.setWindowTitle("视频流播放ffmpeg内核 (QQ: 517216493)");
     w.show();
-
-    //居中显示窗体
-    QDesktopWidget deskWidget;
-    int deskWidth = deskWidget.availableGeometry().width();
-    int deskHeight = deskWidget.availableGeometry().height();
-    QPoint movePoint(deskWidth / 2 - w.width() / 2, deskHeight / 2 - w.height() / 2);
-    w.move(movePoint);
 
     return a.exec();
 }

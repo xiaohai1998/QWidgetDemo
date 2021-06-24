@@ -39,6 +39,7 @@ VideoWidget::VideoWidget(QWidget *parent) : QWidget(parent)
     borderWidth = 5;
     borderColor = "#000000";
     focusColor = "#22A3A9";
+    bgColor = Qt::transparent;
     bgText = "实时视频";
     bgImage = QImage();
 
@@ -81,7 +82,7 @@ void VideoWidget::initFlowPanel()
     //用布局顶住,左侧弹簧
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setSpacing(2);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addStretch();
     flowPanel->setLayout(layout);
 
@@ -99,8 +100,8 @@ void VideoWidget::initFlowPanel()
     icons << QApplication::style()->standardIcon(QStyle::SP_DialogOkButton);
     icons << QApplication::style()->standardIcon(QStyle::SP_DialogCancelButton);
 #else
-    QList<QChar> chars;
-    chars << 0xe68d << 0xe672 << 0xe674 << 0xea36 << 0xe74c;
+    QList<int> icons;
+    icons << 0xe68d << 0xe672 << 0xe674 << 0xea36 << 0xe74c;
 
     //判断图形字体是否存在,不存在则加入
     QFont iconFont;
@@ -142,7 +143,7 @@ void VideoWidget::initFlowPanel()
         btn->setIcon(icons.at(i));
 #else
         btn->setFont(iconFont);
-        btn->setText(chars.at(i));
+        btn->setText((QChar)icons.at(i));
 #endif
 
         //将按钮加到布局中
@@ -273,17 +274,20 @@ void VideoWidget::drawBorder(QPainter *painter)
 void VideoWidget::drawBg(QPainter *painter)
 {
     painter->save();
+    if (bgColor != Qt::transparent) {
+        painter->fillRect(rect(), bgColor);
+    }
 
     //背景图片为空则绘制文字,否则绘制背景图片
     if (bgImage.isNull()) {
         painter->setFont(this->font());
-        painter->setPen(palette().foreground().color());
+        painter->setPen(palette().windowText().color());
         painter->drawText(rect(), Qt::AlignCenter, bgText);
     } else {
         //居中绘制
-        int pixX = rect().center().x() - bgImage.width() / 2;
-        int pixY = rect().center().y() - bgImage.height() / 2;
-        QPoint point(pixX, pixY);
+        int x = rect().center().x() - bgImage.width() / 2;
+        int y = rect().center().y() - bgImage.height() / 2;
+        QPoint point(x, y);
         painter->drawImage(point, bgImage);
     }
 
@@ -301,9 +305,9 @@ void VideoWidget::drawImg(QPainter *painter, QImage img)
     } else {
         //按照比例自动居中绘制
         img = img.scaled(width() - offset, height() - offset, Qt::KeepAspectRatio);
-        int pixX = rect().center().x() - img.width() / 2;
-        int pixY = rect().center().y() - img.height() / 2;
-        QPoint point(pixX, pixY);
+        int x = rect().center().x() - img.width() / 2;
+        int y = rect().center().y() - img.height() / 2;
+        QPoint point(x, y);
         painter->drawImage(point, img);
     }
 
@@ -374,14 +378,39 @@ QImage VideoWidget::getImage() const
     return this->image;
 }
 
-QDateTime VideoWidget::getLastTime() const
+QPixmap VideoWidget::getPixmap() const
 {
-    return QDateTime::currentDateTime();
+    return QPixmap();
 }
 
 QString VideoWidget::getUrl() const
 {
     return this->property("url").toString();
+}
+
+QDateTime VideoWidget::getLastTime() const
+{
+    return QDateTime::currentDateTime();
+}
+
+bool VideoWidget::getCallback() const
+{
+    return false;
+}
+
+bool VideoWidget::getIsPlaying() const
+{
+    return false;
+}
+
+bool VideoWidget::getIsRtsp() const
+{
+    return false;
+}
+
+bool VideoWidget::getIsUsbCamera() const
+{
+    return false;
 }
 
 bool VideoWidget::getCopyImage() const
@@ -437,6 +466,11 @@ QColor VideoWidget::getBorderColor() const
 QColor VideoWidget::getFocusColor() const
 {
     return this->focusColor;
+}
+
+QColor VideoWidget::getBgColor() const
+{
+    return this->bgColor;
 }
 
 QString VideoWidget::getBgText() const
@@ -519,14 +553,29 @@ VideoWidget::OSDPosition VideoWidget::getOSD2Position() const
     return this->osd2Position;
 }
 
+int VideoWidget::getFaceBorder() const
+{
+    return this->faceBorder;
+}
+
+QColor VideoWidget::getFaceColor() const
+{
+    return this->faceColor;
+}
+
+QList<QRect> VideoWidget::getFaceRects() const
+{
+    return this->faceRects;
+}
+
 QSize VideoWidget::sizeHint() const
 {
-    return QSize(500, 350);
+    return QSize(400, 300);
 }
 
 QSize VideoWidget::minimumSizeHint() const
 {
-    return QSize(50, 35);
+    return QSize(40, 30);
 }
 
 void VideoWidget::updateImage(const QImage &image)
@@ -551,6 +600,41 @@ void VideoWidget::btnClicked()
 {
     QPushButton *btn = (QPushButton *)sender();
     emit btnClicked(btn->objectName());
+}
+
+uint VideoWidget::getLength()
+{
+    return 0;
+}
+
+uint VideoWidget::getPosition()
+{
+    return 0;
+}
+
+void VideoWidget::setPosition(int position)
+{
+
+}
+
+bool VideoWidget::getMuted()
+{
+    return false;
+}
+
+void VideoWidget::setMuted(bool muted)
+{
+
+}
+
+int VideoWidget::getVolume()
+{
+    return 0;
+}
+
+void VideoWidget::setVolume(int volume)
+{
+
 }
 
 void VideoWidget::setInterval(int interval)
@@ -578,7 +662,17 @@ void VideoWidget::setUrl(const QString &url)
     this->setProperty("url", url);
 }
 
+void VideoWidget::setCallback(bool callback)
+{
+
+}
+
 void VideoWidget::setHardware(const QString &hardware)
+{
+
+}
+
+void VideoWidget::setTransport(const QString &transport)
 {
 
 }
@@ -593,6 +687,11 @@ void VideoWidget::setSaveInterval(int saveInterval)
 
 }
 
+void VideoWidget::setFileFlag(const QString &fileFlag)
+{
+
+}
+
 void VideoWidget::setSavePath(const QString &savePath)
 {
     //如果目录不存在则新建
@@ -600,8 +699,6 @@ void VideoWidget::setSavePath(const QString &savePath)
     if (!dir.exists()) {
         dir.mkdir(savePath);
     }
-
-
 }
 
 void VideoWidget::setFileName(const QString &fileName)
@@ -658,96 +755,159 @@ void VideoWidget::setTimeout(int timeout)
 void VideoWidget::setBorderWidth(int borderWidth)
 {
     this->borderWidth = borderWidth;
+    this->update();
 }
 
 void VideoWidget::setBorderColor(const QColor &borderColor)
 {
     this->borderColor = borderColor;
+    this->update();
 }
 
 void VideoWidget::setFocusColor(const QColor &focusColor)
 {
     this->focusColor = focusColor;
+    this->update();
+}
+
+void VideoWidget::setBgColor(const QColor &bgColor)
+{
+    this->bgColor = bgColor;
+    this->update();
 }
 
 void VideoWidget::setBgText(const QString &bgText)
 {
     this->bgText = bgText;
+    this->update();
 }
 
 void VideoWidget::setBgImage(const QImage &bgImage)
 {
     this->bgImage = bgImage;
+    this->update();
 }
 
 void VideoWidget::setOSD1Visible(bool osdVisible)
 {
     this->osd1Visible = osdVisible;
+    this->update();
 }
 
 void VideoWidget::setOSD1FontSize(int osdFontSize)
 {
     this->osd1FontSize = osdFontSize;
+    this->update();
 }
 
 void VideoWidget::setOSD1Text(const QString &osdText)
 {
     this->osd1Text = osdText;
+    this->update();
 }
 
 void VideoWidget::setOSD1Color(const QColor &osdColor)
 {
     this->osd1Color = osdColor;
+    this->update();
 }
 
 void VideoWidget::setOSD1Image(const QImage &osdImage)
 {
     this->osd1Image = osdImage;
+    this->update();
 }
 
 void VideoWidget::setOSD1Format(const VideoWidget::OSDFormat &osdFormat)
 {
     this->osd1Format = osdFormat;
+    this->update();
 }
 
 void VideoWidget::setOSD1Position(const VideoWidget::OSDPosition &osdPosition)
 {
     this->osd1Position = osdPosition;
+    this->update();
 }
 
 void VideoWidget::setOSD2Visible(bool osdVisible)
 {
     this->osd2Visible = osdVisible;
+    this->update();
 }
 
 void VideoWidget::setOSD2FontSize(int osdFontSize)
 {
     this->osd2FontSize = osdFontSize;
+    this->update();
 }
 
 void VideoWidget::setOSD2Text(const QString &osdText)
 {
     this->osd2Text = osdText;
+    this->update();
 }
 
 void VideoWidget::setOSD2Color(const QColor &osdColor)
 {
     this->osd2Color = osdColor;
+    this->update();
 }
 
 void VideoWidget::setOSD2Image(const QImage &osdImage)
 {
     this->osd2Image = osdImage;
+    this->update();
 }
 
 void VideoWidget::setOSD2Format(const VideoWidget::OSDFormat &osdFormat)
 {
     this->osd2Format = osdFormat;
+    this->update();
 }
 
 void VideoWidget::setOSD2Position(const VideoWidget::OSDPosition &osdPosition)
 {
     this->osd2Position = osdPosition;
+    this->update();
+}
+
+void VideoWidget::setOSD1Format(quint8 osdFormat)
+{
+    setOSD1Format((VideoWidget::OSDFormat)osdFormat);
+}
+
+void VideoWidget::setOSD2Format(quint8 osdFormat)
+{
+    setOSD2Format((VideoWidget::OSDFormat)osdFormat);
+}
+
+void VideoWidget::setOSD1Position(quint8 osdPosition)
+{
+    setOSD1Position((VideoWidget::OSDPosition)osdPosition);
+}
+
+void VideoWidget::setOSD2Position(quint8 osdPosition)
+{
+    setOSD2Position((VideoWidget::OSDPosition)osdPosition);
+}
+
+void VideoWidget::setFaceBorder(int faceBorder)
+{
+    this->faceBorder = faceBorder;
+    this->update();
+}
+
+void VideoWidget::setFaceColor(const QColor &faceColor)
+{
+    this->faceColor = faceColor;
+    this->update();
+}
+
+void VideoWidget::setFaceRects(const QList<QRect> &faceRects)
+{
+    this->faceRects = faceRects;
+    this->update();
 }
 
 void VideoWidget::open()
@@ -788,16 +948,25 @@ void VideoWidget::close()
     QTimer::singleShot(1, this, SLOT(clear()));
 }
 
-void VideoWidget::restart()
+void VideoWidget::restart(int delayOpen)
 {
     //qDebug() << TIMEMS << "restart video" << objectName();
     close();
-    QTimer::singleShot(10, this, SLOT(open()));
+    if (delayOpen > 0) {
+        QTimer::singleShot(delayOpen, this, SLOT(open()));
+    } else {
+        open();
+    }
 }
 
 void VideoWidget::clear()
 {
     image = QImage();
     this->update();
+}
+
+void VideoWidget::snap(const QString &fileName)
+{
+
 }
 
